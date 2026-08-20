@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Linkedin, Phone, Mail, MapPin } from 'lucide-react';
-
+import { Phone, Mail, MapPin } from 'lucide-react';
 function Footer() {
   return (
     <footer className="bg-white text-slate-900 pt-24 pb-12 border-t border-slate-100">
@@ -10,7 +9,7 @@ function Footer() {
             <Link to="/" className="flex items-center gap-3 group">
               <div className="bg-white p-2 rounded-xl shadow-lg shadow-blue-500/10 group-hover:rotate-6 transition-transform">
                 <img 
-                  src="reqimages/logo.jpg" 
+                  src="/reqimages/logo.jpg" 
                   alt="Oman Spark Logo" 
                   className="w-8 h-8 object-contain "
                   referrerPolicy="no-referrer"

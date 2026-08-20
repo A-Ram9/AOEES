@@ -7,7 +7,7 @@ const projects = [
     category: 'Commercial',
     location: 'Nakkal, Muscat',
     date: '2023',
-    image: "reqimages/Nakkal Phase 1.jpg",
+    image: "/reqimages/Nakkal Phase 1.jpg",
     description: 'Complete electrical fit-out for over 50 retail outlets and common areas.'
   },
   {
@@ -15,7 +15,7 @@ const projects = [
     category: 'Residential',
     location: 'Musannah, Muscat',
     date: '2022',
-    image: 'reqimages/Wahiba Phase 1.jpg',
+    image: '/reqimages/Wahiba Phase 1.jpg',
     description: 'Smart home integration and full electrical wiring for 25 luxury villas.'
   },
   {
@@ -23,7 +23,7 @@ const projects = [
     category: 'Industrial',
     location: 'Sohar',
     date: '2023',
-    image: 'reqimages/Amerat Phase 1.jpg',
+    image: '/reqimages/Amerat Phase 1.jpg',
     description: 'Installation of high-voltage switchgear and industrial lighting systems.'
   },
   {
@@ -31,7 +31,7 @@ const projects = [
     category: 'Commercial',
     location: 'Airport Heights',
     date: '2021',
-    image: 'reqimages/Sur Phase 1.jpg',
+    image: '/reqimages/Sur Phase 1.jpg',
     description: 'Specialized lighting and power distribution for exhibition halls.'
   },
   {
@@ -39,7 +39,7 @@ const projects = [
     category: 'Healthcare',
     location: 'Qurum, Muscat',
     date: '2022',
-    image: 'reqimages/BP1.jpg',
+    image: '/reqimages/BP1.jpg',
     description: 'Critical power backup systems and medical-grade electrical installations.'
   },
   {
@@ -47,7 +47,7 @@ const projects = [
     category: 'Solar',
     location: 'Interior Oman',
     date: '2023',
-    image: 'reqimages/Solar.jpg',
+    image: '/reqimages/Solar.jpg',
     description: 'Sub-contracted installation of solar panel mounting and cabling.'
   }
 ];

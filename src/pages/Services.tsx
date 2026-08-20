@@ -5,7 +5,7 @@ const services = [
   {
     id: 'substation',
     icon: <Zap className="w-10 h-10" />,
-    image: 'reqimages/subs.jpg',
+    image: '/reqimages/subs.jpg',
     title: 'Substation and SS Equipment Installations',
     description: 'Expert installation and maintenance of high-voltage substations and associated electrical equipment for power distribution networks.',
     features: ['Transformer installation', 'Busbar systems', 'Protection relays', 'Control panels']
@@ -13,7 +13,7 @@ const services = [
   {
     id: 'solar-pv',
     icon: <Sun className="w-10 h-10" />,
-    image: 'reqimages/pvsolar.jpg',
+    image: '/reqimages/pvsolar.jpg',
     title: 'Solar PV Projects',
     description: 'Comprehensive solar photovoltaic solutions, from large-scale solar farms to commercial rooftop installations across Oman.',
     features: ['PV module installation', 'Inverter systems', 'Grid synchronization', 'Performance monitoring']
@@ -21,7 +21,7 @@ const services = [
   {
     id: 'switchgear',
     icon: <Settings className="w-10 h-10" />,
-    image: 'reqimages/switch.jpg',
+    image: '/reqimages/switch.jpg',
     title: 'Switchgear Installations',
     description: 'Design and installation of low, medium, and high voltage switchgear systems for industrial and commercial applications.',
     features: ['LV/MV/HV Switchgear', 'Circuit breakers', 'Load break switches', 'Retrofitting services']
@@ -29,7 +29,7 @@ const services = [
   {
     id: 'testing-commissioning',
     icon: <ShieldCheck className="w-10 h-10" />,
-    image: 'reqimages/test.jpg',
+    image: '/reqimages/test.jpg',
     title: 'Testing and Commissioning',
     description: 'Rigorous testing and commissioning services to ensure all electrical systems are safe, reliable, and compliant with standards.',
     features: ['Relay testing', 'Insulation resistance', 'Earth testing', 'Thermal imaging']
@@ -37,7 +37,7 @@ const services = [
   {
     id: 'underground-cable',
     icon: <Cable className="w-10 h-10" />,
-    image: 'reqimages/ugc.jpg',
+    image: '/reqimages/ugc.jpg',
     title: 'Underground Cable Works',
     description: 'Specialized underground cabling solutions, including trenching, laying, jointing, and termination of power cables.',
     features: ['Cable laying', 'Jointing & termination', 'Fault location', 'Excavation & reinstatement']
@@ -45,7 +45,7 @@ const services = [
   {
     id: 'overhead-line',
     icon: <Activity className="w-10 h-10" />,
-    image: 'reqimages/ohl.jpg',
+    image: '/reqimages/ohl.jpg',
     title: 'Over-Head Line Network Works',
     description: 'Construction and maintenance of overhead power lines and distribution networks for rural and urban electrification.',
     features: ['Pole installation', 'Conductor stringing', 'Insulator replacement', 'Line maintenance']

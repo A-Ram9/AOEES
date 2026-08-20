@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Zap, Shield, Clock, Award, ArrowRight, Users, Target, CheckCircle2, ChevronRight, Pencil, FileCheck, UserCheck } from 'lucide-react';
+///import { Zap, Shield, Clock, Award, ArrowRight, Users, Target, CheckCircle2, ChevronRight, Pencil, FileCheck, UserCheck } from 'lucide-react'///
 import { Link } from 'react-router-dom';
 
 function Home() {
@@ -15,10 +15,10 @@ function Home() {
             playsInline
             className="w-full h-full object-cover opacity-60"
           >
-            <source src="reqimages/surge.mp4" type="video/mp4" />
+            <source src="/reqimages/surge.mp4" type="video/mp4" />
             {/* Fallback image if video fails or path is wrong */}
             <img 
-              src="reqimages/Picture1.jpg" 
+              src="/reqimages/Picture1.jpg" 
               alt="Electrical work" 
               className="w-full h-full object-cover opacity-40"
               referrerPolicy="no-referrer"

@@ -1,18 +1,18 @@
 import { motion } from 'motion/react';
 
 const clients = [
-  { name: 'NAMA', logo: 'reqimages/nama1.jpg' },
-  { name: 'Majan', logo: 'reqimages/maj.jpg' },
-  { name: 'Ministry of Education', logo: 'reqimages/MOE.jpg' },
-  { name: 'Al Ansari Trading', logo: 'reqimages/ans.jpg' },
-  { name: 'Royal Oman Police', logo: 'reqimages/ROP.jpg' },
-  { name: 'Galfar', logo: 'reqimages/galf.jpg' },
-  { name: 'Al Tasnim Group', logo: 'reqimages/tasn.jpg' },
-  { name: 'Unique Trading CO. LLC', logo: 'reqimages/uni.jpg' },
-  { name: 'MZEC', logo: 'reqimages/maz.jpg' },
-  { name: 'Ministry of Defence', logo: 'reqimages/MOD.jpg' },
-  { name: 'Muna Noor', logo: 'reqimages/mun.jpg' },
-  { name: 'Saif Al Harasi Group', logo: 'reqimages/saif.jpg' },
+  { name: 'NAMA', logo: '/reqimages/nama1.jpg' },
+  { name: 'Majan', logo: '/reqimages/maj.jpg' },
+  { name: 'Ministry of Education', logo: '/reqimages/MOE.jpg' },
+  { name: 'Al Ansari Trading', logo: '/reqimages/ans.jpg' },
+  { name: 'Royal Oman Police', logo: '/reqimages/ROP.jpg' },
+  { name: 'Galfar', logo: '/reqimages/galf.jpg' },
+  { name: 'Al Tasnim Group', logo: '/reqimages/tasn.jpg' },
+  { name: 'Unique Trading CO. LLC', logo: '/reqimages/uni.jpg' },
+  { name: 'MZEC', logo: '/reqimages/maz.jpg' },
+  { name: 'Ministry of Defence', logo: '/reqimages/MOD.jpg' },
+  { name: 'Muna Noor', logo: '/reqimages/mun.jpg' },
+  { name: 'Saif Al Harasi Group', logo: '/reqimages/saif.jpg' },
 ];
 
 function Clients() {

@@ -95,7 +95,7 @@ function Navbar() {
             <Link to="/" className="flex items-center gap-2 group">
               <div className="bg-white p-1.5 rounded-lg group-hover:rotate-12 transition-transform">
                 <img 
-                  src="reqimages/logo.jpg" 
+                  src="/reqimages/logo.jpg" 
                   alt="AOEES Logo" 
                   className="w-8 h-8 object-contain "
                   referrerPolicy="no-referrer"
