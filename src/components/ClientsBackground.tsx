@@ -1,54 +1,38 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Electric, cursor-reactive background for the Clients page.
+ * Subtle, cursor-anchored background for the Clients page.
  *
- * - A static, dark-ultramarine glow washes the whole section (fixed, does
- *   not move) so the page always reads as gently "powered on".
- * - A slightly brighter glow follows the cursor with minimal lag, and
- *   occasional, understated lightning sparks flick outward from the
- *   pointer - fitting the electrical-contracting theme without
- *   overwhelming the page.
+ * Rather than firing independent random sparks, the "lightning" here is
+ * a short trail sampled directly from the cursor's own recent path, so
+ * it always reads as attached to the pointer instead of appearing to
+ * pop in at arbitrary spots. Each trail segment is smoothed with a
+ * quadratic curve and fades in with a smoothstep easing, and its faint
+ * jitter scales with how fast the cursor is moving - fast movement
+ * reads as a bit more "electric", holding still calms it back down.
  *
- * Colors match the page's own ultramarine text/brand color (see the
- * --color-ultramarine tokens in src/index.css) rather than a generic
- * light blue, so the effect reads as part of the same design language.
+ * Colors are the page's own dark ultramarine tokens (see the
+ * --color-ultramarine variables in src/index.css), kept at low opacity
+ * throughout so the whole effect stays in the background.
  */
 
-const AMBIENT_RGB = '18, 10, 143'; // --color-ultramarine - static background wash
-const CURSOR_GLOW_RGB = '30, 20, 179'; // --color-ultramarine-light - glow under the cursor
-const BOLT_GLOW_RGB = '30, 20, 179'; // --color-ultramarine-light - outer glow of each bolt
-const BOLT_CORE_RGB = '143, 138, 217'; // ultramarine tinted toward white - hot bolt core
+const AMBIENT_RGB = '10, 6, 92'; // --color-ultramarine-dark - static background wash
+const CURSOR_GLOW_RGB = '18, 10, 143'; // --color-ultramarine - soft glow under the cursor
+const TRAIL_GLOW_RGB = '18, 10, 143'; // --color-ultramarine - outer glow of the trail
+const TRAIL_CORE_RGB = '30, 20, 179'; // --color-ultramarine-light - trail core
 
-interface Point {
+const TRAIL_DURATION = 260; // ms a trail sample stays visible before fading out
+const MIN_SAMPLE_DISTANCE = 2; // px the cursor must move before a new sample is recorded
+
+interface TrailPoint {
   x: number;
   y: number;
+  t: number;
 }
 
-interface Bolt {
-  points: Point[];
-  life: number;
-  maxLife: number;
-  width: number;
-}
-
-/** Procedurally builds a jagged lightning path via midpoint displacement. */
-function buildBoltPath(x1: number, y1: number, x2: number, y2: number, displace: number): Point[] {
-  const points: Point[] = [{ x: x1, y: y1 }];
-
-  function subdivide(ax: number, ay: number, bx: number, by: number, offset: number) {
-    if (offset < 5) {
-      points.push({ x: bx, y: by });
-      return;
-    }
-    const midX = (ax + bx) / 2 + (Math.random() - 0.5) * offset;
-    const midY = (ay + by) / 2 + (Math.random() - 0.5) * offset;
-    subdivide(ax, ay, midX, midY, offset * 0.55);
-    subdivide(midX, midY, bx, by, offset * 0.55);
-  }
-
-  subdivide(x1, y1, x2, y2, displace);
-  return points;
+function smoothstep(t: number): number {
+  const clamped = Math.min(Math.max(t, 0), 1);
+  return clamped * clamped * (3 - 2 * clamped);
 }
 
 function ClientsBackground() {
@@ -69,9 +53,7 @@ function ClientsBackground() {
     let rafId = 0;
 
     const mouse = { x: -9999, y: -9999, targetX: -9999, targetY: -9999, active: false };
-    let bolts: Bolt[] = [];
-    let lastSparkAt = 0;
-    let lastStrikeAt = 0;
+    let trail: TrailPoint[] = [];
 
     function resize() {
       width = canvas!.clientWidth;
@@ -92,36 +74,6 @@ function ClientsBackground() {
       mouse.active = false;
     }
 
-    /** Spawns a short, faint spark radiating out from the live cursor position. */
-    function spawnSparks(count: number) {
-      for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 40 + Math.random() * 80;
-        const endX = mouse.targetX + Math.cos(angle) * distance;
-        const endY = mouse.targetY + Math.sin(angle) * distance;
-        bolts.push({
-          points: buildBoltPath(mouse.targetX, mouse.targetY, endX, endY, distance * 0.6),
-          life: 140,
-          maxLife: 140,
-          width: 1 + Math.random() * 0.8,
-        });
-      }
-    }
-
-    /** Rarely fires one longer, slightly more dramatic strike from the cursor. */
-    function spawnStrike() {
-      const angle = Math.random() * Math.PI * 2;
-      const distance = 130 + Math.random() * 110;
-      const endX = mouse.targetX + Math.cos(angle) * distance;
-      const endY = mouse.targetY + Math.sin(angle) * distance;
-      bolts.push({
-        points: buildBoltPath(mouse.targetX, mouse.targetY, endX, endY, distance * 0.7),
-        life: 200,
-        maxLife: 200,
-        width: 1.8,
-      });
-    }
-
     function drawAmbientGlow() {
       const spots = [
         { x: width * 0.15, y: height * 0.2, r: Math.max(width, height) * 0.45 },
@@ -129,7 +81,7 @@ function ClientsBackground() {
       ];
       for (const spot of spots) {
         const glow = ctx!.createRadialGradient(spot.x, spot.y, 0, spot.x, spot.y, spot.r);
-        glow.addColorStop(0, `rgba(${AMBIENT_RGB}, 0.07)`);
+        glow.addColorStop(0, `rgba(${AMBIENT_RGB}, 0.06)`);
         glow.addColorStop(1, `rgba(${AMBIENT_RGB}, 0)`);
         ctx!.fillStyle = glow;
         ctx!.fillRect(0, 0, width, height);
@@ -138,34 +90,74 @@ function ClientsBackground() {
 
     function drawCursorGlow() {
       if (!mouse.active) return;
-      const glow = ctx!.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 220);
-      glow.addColorStop(0, `rgba(${CURSOR_GLOW_RGB}, 0.16)`);
-      glow.addColorStop(0.5, `rgba(${CURSOR_GLOW_RGB}, 0.05)`);
+      const glow = ctx!.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 200);
+      glow.addColorStop(0, `rgba(${CURSOR_GLOW_RGB}, 0.12)`);
+      glow.addColorStop(0.5, `rgba(${CURSOR_GLOW_RGB}, 0.04)`);
       glow.addColorStop(1, `rgba(${CURSOR_GLOW_RGB}, 0)`);
       ctx!.fillStyle = glow;
       ctx!.fillRect(0, 0, width, height);
     }
 
-    function drawBolts() {
+    /** Records a new trail sample at the cursor, with jitter scaled to movement speed. */
+    function sampleTrail(now: number) {
+      const last = trail[trail.length - 1];
+      const dx = mouse.x - (last?.x ?? mouse.x);
+      const dy = mouse.y - (last?.y ?? mouse.y);
+      const moveDist = Math.hypot(dx, dy);
+
+      if (last && moveDist < MIN_SAMPLE_DISTANCE) return;
+
+      let x = mouse.x;
+      let y = mouse.y;
+
+      if (last && moveDist > 0.01) {
+        const nx = -dy / moveDist;
+        const ny = dx / moveDist;
+        const jitterMag = (Math.random() - 0.5) * Math.min(moveDist * 0.35, 7);
+        x += nx * jitterMag;
+        y += ny * jitterMag;
+      }
+
+      trail.push({ x, y, t: now });
+    }
+
+    /** Draws the live trail as a smoothed, fading curve behind the cursor. */
+    function drawTrail(now: number) {
+      trail = trail.filter((p) => now - p.t < TRAIL_DURATION);
+      if (trail.length < 2) return;
+
       ctx!.lineJoin = 'round';
       ctx!.lineCap = 'round';
 
-      for (const bolt of bolts) {
-        const alpha = Math.max(bolt.life / bolt.maxLife, 0);
+      for (let i = 0; i < trail.length - 1; i++) {
+        const a = trail[i];
+        const b = trail[i + 1];
+        const age = now - a.t;
+        const alpha = smoothstep(1 - age / TRAIL_DURATION);
+        if (alpha <= 0.02) continue;
+
+        const prev = trail[i - 1] ?? a;
+        const next = trail[i + 2] ?? b;
+        const startX = (prev.x + a.x) / 2;
+        const startY = (prev.y + a.y) / 2;
+        const endX = (b.x + next.x) / 2;
+        const endY = (b.y + next.y) / 2;
+
         ctx!.beginPath();
-        bolt.points.forEach((p, i) => (i === 0 ? ctx!.moveTo(p.x, p.y) : ctx!.lineTo(p.x, p.y)));
+        ctx!.moveTo(startX, startY);
+        ctx!.quadraticCurveTo(a.x, a.y, endX, endY);
 
         // Outer glow pass.
-        ctx!.strokeStyle = `rgba(${BOLT_GLOW_RGB}, ${0.4 * alpha})`;
-        ctx!.lineWidth = bolt.width * 3;
-        ctx!.shadowColor = `rgba(${BOLT_GLOW_RGB}, ${0.6 * alpha})`;
-        ctx!.shadowBlur = 12;
+        ctx!.strokeStyle = `rgba(${TRAIL_GLOW_RGB}, ${0.18 * alpha})`;
+        ctx!.lineWidth = 2.4;
+        ctx!.shadowColor = `rgba(${TRAIL_GLOW_RGB}, ${0.25 * alpha})`;
+        ctx!.shadowBlur = 6;
         ctx!.stroke();
 
-        // Hot core pass.
+        // Core pass.
         ctx!.shadowBlur = 0;
-        ctx!.strokeStyle = `rgba(${BOLT_CORE_RGB}, ${0.75 * alpha})`;
-        ctx!.lineWidth = bolt.width;
+        ctx!.strokeStyle = `rgba(${TRAIL_CORE_RGB}, ${0.28 * alpha})`;
+        ctx!.lineWidth = 1;
         ctx!.stroke();
       }
 
@@ -178,29 +170,18 @@ function ClientsBackground() {
       // Static ambient wash - fixed, does not move with the cursor or scroll.
       drawAmbientGlow();
 
-      // Fast-follow the pointer so the reaction reads as near-instant.
-      mouse.x += (mouse.targetX - mouse.x) * 0.4;
-      mouse.y += (mouse.targetY - mouse.y) * 0.4;
+      // Ease toward the pointer smoothly rather than snapping to it.
+      mouse.x += (mouse.targetX - mouse.x) * 0.35;
+      mouse.y += (mouse.targetY - mouse.y) * 0.35;
 
       drawCursorGlow();
 
       if (!prefersReducedMotion && mouse.active) {
-        if (now - lastSparkAt > 220) {
-          spawnSparks(1);
-          lastSparkAt = now;
-        }
-        if (now - lastStrikeAt > 1400) {
-          spawnStrike();
-          lastStrikeAt = now;
-        }
+        sampleTrail(now);
       }
-
       if (!prefersReducedMotion) {
-        bolts = bolts.filter((bolt) => (bolt.life -= 16) > 0);
-        if (bolts.length > 24) bolts = bolts.slice(bolts.length - 24);
+        drawTrail(now);
       }
-
-      drawBolts();
 
       rafId = requestAnimationFrame(draw);
     }
