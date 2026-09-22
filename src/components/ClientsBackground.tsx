@@ -1,29 +1,54 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Subtle, interactive ultramarine particle field for the Clients page.
+ * Electric, cursor-reactive background for the Clients page.
  *
- * - A soft glow follows the cursor (eased, so it trails gently).
- * - A sparse network of slow-drifting particles is pulled lightly toward
- *   the cursor and connected by faint lines, evoking a "network of
- *   partners" feel that matches the page's content.
- * - The whole field eases toward a slight vertical parallax offset as the
- *   page is scrolled, so it feels alive rather than pinned in place.
+ * - A static soft light-blue glow washes the whole section (fixed, does
+ *   not move) so the page always reads as gently "powered on".
+ * - A brighter glow follows the cursor with minimal lag, and crackling
+ *   lightning bolts spark outward from the pointer in real time -
+ *   fitting the electrical-contracting theme much more directly than a
+ *   generic particle field.
  *
- * Colors are pulled from the site's ultramarine theme (see src/index.css)
- * and kept at low opacity so the effect stays in the background.
+ * Colors stay within the site's blue family (see src/index.css and the
+ * blue-400/500 accents used elsewhere), just pushed brighter/lighter so
+ * the reaction to the cursor reads clearly instead of blending in.
  */
 
-const PARTICLE_RGB = '30, 20, 179'; // --color-ultramarine-light
-const LINE_RGB = '18, 10, 143'; // --color-ultramarine
-const GLOW_RGB = '37, 99, 235'; // accent blue used elsewhere on the site (blue-500)
+const AMBIENT_RGB = '96, 165, 250'; // blue-400 - static background wash
+const CURSOR_GLOW_RGB = '56, 189, 248'; // sky-400 - bright glow under the cursor
+const BOLT_GLOW_RGB = '56, 189, 248'; // sky-400 - outer glow of each bolt
+const BOLT_CORE_RGB = '224, 242, 254'; // near-white light blue - hot bolt core
 
-interface Particle {
+interface Point {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
-  radius: number;
+}
+
+interface Bolt {
+  points: Point[];
+  life: number;
+  maxLife: number;
+  width: number;
+}
+
+/** Procedurally builds a jagged lightning path via midpoint displacement. */
+function buildBoltPath(x1: number, y1: number, x2: number, y2: number, displace: number): Point[] {
+  const points: Point[] = [{ x: x1, y: y1 }];
+
+  function subdivide(ax: number, ay: number, bx: number, by: number, offset: number) {
+    if (offset < 5) {
+      points.push({ x: bx, y: by });
+      return;
+    }
+    const midX = (ax + bx) / 2 + (Math.random() - 0.5) * offset;
+    const midY = (ay + by) / 2 + (Math.random() - 0.5) * offset;
+    subdivide(ax, ay, midX, midY, offset * 0.55);
+    subdivide(midX, midY, bx, by, offset * 0.55);
+  }
+
+  subdivide(x1, y1, x2, y2, displace);
+  return points;
 }
 
 function ClientsBackground() {
@@ -41,12 +66,12 @@ function ClientsBackground() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let width = 0;
     let height = 0;
-    let particles: Particle[] = [];
     let rafId = 0;
 
     const mouse = { x: -9999, y: -9999, targetX: -9999, targetY: -9999, active: false };
-    let parallax = 0;
-    let parallaxTarget = 0;
+    let bolts: Bolt[] = [];
+    let lastSparkAt = 0;
+    let lastStrikeAt = 0;
 
     function resize() {
       width = canvas!.clientWidth;
@@ -54,15 +79,6 @@ function ClientsBackground() {
       canvas!.width = width * dpr;
       canvas!.height = height * dpr;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      const count = Math.min(50, Math.max(18, Math.floor((width * height) / 26000)));
-      particles = Array.from({ length: count }, () => ({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.18,
-        vy: (Math.random() - 0.5) * 0.18,
-        radius: Math.random() * 1.5 + 0.6,
-      }));
     }
 
     function handlePointerMove(e: PointerEvent) {
@@ -76,95 +92,132 @@ function ClientsBackground() {
       mouse.active = false;
     }
 
-    function handleScroll() {
-      parallaxTarget = window.scrollY * 0.04;
+    /** Spawns short, bright sparks radiating out from the live cursor position. */
+    function spawnSparks(count: number) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 50 + Math.random() * 110;
+        const endX = mouse.targetX + Math.cos(angle) * distance;
+        const endY = mouse.targetY + Math.sin(angle) * distance;
+        bolts.push({
+          points: buildBoltPath(mouse.targetX, mouse.targetY, endX, endY, distance * 0.6),
+          life: 160,
+          maxLife: 160,
+          width: 1.4 + Math.random() * 1.2,
+        });
+      }
     }
 
-    function draw() {
-      ctx!.clearRect(0, 0, width, height);
+    /** Occasionally fires one longer, more dramatic strike from the cursor. */
+    function spawnStrike() {
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 160 + Math.random() * 140;
+      const endX = mouse.targetX + Math.cos(angle) * distance;
+      const endY = mouse.targetY + Math.sin(angle) * distance;
+      bolts.push({
+        points: buildBoltPath(mouse.targetX, mouse.targetY, endX, endY, distance * 0.7),
+        life: 220,
+        maxLife: 220,
+        width: 2.4,
+      });
+    }
 
-      // Cursor glow (eased so it trails softly rather than snapping).
-      mouse.x += (mouse.targetX - mouse.x) * 0.08;
-      mouse.y += (mouse.targetY - mouse.y) * 0.08;
-
-      if (mouse.active) {
-        const glow = ctx!.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 280);
-        glow.addColorStop(0, `rgba(${GLOW_RGB}, 0.09)`);
-        glow.addColorStop(1, `rgba(${GLOW_RGB}, 0)`);
+    function drawAmbientGlow() {
+      const spots = [
+        { x: width * 0.15, y: height * 0.2, r: Math.max(width, height) * 0.45 },
+        { x: width * 0.85, y: height * 0.75, r: Math.max(width, height) * 0.4 },
+      ];
+      for (const spot of spots) {
+        const glow = ctx!.createRadialGradient(spot.x, spot.y, 0, spot.x, spot.y, spot.r);
+        glow.addColorStop(0, `rgba(${AMBIENT_RGB}, 0.10)`);
+        glow.addColorStop(1, `rgba(${AMBIENT_RGB}, 0)`);
         ctx!.fillStyle = glow;
         ctx!.fillRect(0, 0, width, height);
       }
+    }
 
-      // Ease the parallax offset toward the scroll-derived target.
-      parallax += (parallaxTarget - parallax) * 0.08;
+    function drawCursorGlow() {
+      if (!mouse.active) return;
+      const glow = ctx!.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 240);
+      glow.addColorStop(0, `rgba(${CURSOR_GLOW_RGB}, 0.24)`);
+      glow.addColorStop(0.5, `rgba(${CURSOR_GLOW_RGB}, 0.08)`);
+      glow.addColorStop(1, `rgba(${CURSOR_GLOW_RGB}, 0)`);
+      ctx!.fillStyle = glow;
+      ctx!.fillRect(0, 0, width, height);
+    }
 
-      ctx!.save();
-      ctx!.translate(0, -parallax);
+    function drawBolts() {
+      ctx!.lineJoin = 'round';
+      ctx!.lineCap = 'round';
 
-      for (const p of particles) {
-        if (!prefersReducedMotion) {
-          p.x += p.vx;
-          p.y += p.vy;
-
-          // Wrap around edges for a seamless, endless drift.
-          if (p.x < -10) p.x = width + 10;
-          if (p.x > width + 10) p.x = -10;
-          if (p.y < -10) p.y = height + 10;
-          if (p.y > height + 10) p.y = -10;
-
-          if (mouse.active) {
-            const dx = mouse.x - p.x;
-            const dy = mouse.y - p.y;
-            const dist = Math.hypot(dx, dy);
-            if (dist < 130 && dist > 0.01) {
-              const pull = ((130 - dist) / 130) * 0.5;
-              p.x += (dx / dist) * pull;
-              p.y += (dy / dist) * pull;
-            }
-          }
-        }
-
+      for (const bolt of bolts) {
+        const alpha = Math.max(bolt.life / bolt.maxLife, 0);
         ctx!.beginPath();
-        ctx!.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(${PARTICLE_RGB}, 0.35)`;
-        ctx!.fill();
+        bolt.points.forEach((p, i) => (i === 0 ? ctx!.moveTo(p.x, p.y) : ctx!.lineTo(p.x, p.y)));
+
+        // Outer glow pass.
+        ctx!.strokeStyle = `rgba(${BOLT_GLOW_RGB}, ${0.55 * alpha})`;
+        ctx!.lineWidth = bolt.width * 3.2;
+        ctx!.shadowColor = `rgba(${BOLT_GLOW_RGB}, ${0.85 * alpha})`;
+        ctx!.shadowBlur = 16;
+        ctx!.stroke();
+
+        // Hot core pass.
+        ctx!.shadowBlur = 0;
+        ctx!.strokeStyle = `rgba(${BOLT_CORE_RGB}, ${0.95 * alpha})`;
+        ctx!.lineWidth = bolt.width;
+        ctx!.stroke();
       }
 
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const a = particles[i];
-          const b = particles[j];
-          const dist = Math.hypot(a.x - b.x, a.y - b.y);
-          if (dist < 110) {
-            ctx!.beginPath();
-            ctx!.moveTo(a.x, a.y);
-            ctx!.lineTo(b.x, b.y);
-            ctx!.strokeStyle = `rgba(${LINE_RGB}, ${0.1 * (1 - dist / 110)})`;
-            ctx!.lineWidth = 1;
-            ctx!.stroke();
-          }
+      ctx!.shadowBlur = 0;
+    }
+
+    function draw(now: number) {
+      ctx!.clearRect(0, 0, width, height);
+
+      // Static ambient wash - fixed, does not move with the cursor or scroll.
+      drawAmbientGlow();
+
+      // Fast-follow the pointer so the reaction reads as near-instant.
+      mouse.x += (mouse.targetX - mouse.x) * 0.4;
+      mouse.y += (mouse.targetY - mouse.y) * 0.4;
+
+      drawCursorGlow();
+
+      if (!prefersReducedMotion && mouse.active) {
+        if (now - lastSparkAt > 55) {
+          spawnSparks(2);
+          lastSparkAt = now;
+        }
+        if (now - lastStrikeAt > 420) {
+          spawnStrike();
+          lastStrikeAt = now;
         }
       }
 
-      ctx!.restore();
+      if (!prefersReducedMotion) {
+        bolts = bolts.filter((bolt) => (bolt.life -= 16) > 0);
+        if (bolts.length > 60) bolts = bolts.slice(bolts.length - 60);
+      }
+
+      drawBolts();
+
       rafId = requestAnimationFrame(draw);
     }
 
     resize();
-    draw();
+    rafId = requestAnimationFrame(draw);
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerleave', handlePointerLeave);
-    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       cancelAnimationFrame(rafId);
       resizeObserver.disconnect();
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerleave', handlePointerLeave);
-      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
