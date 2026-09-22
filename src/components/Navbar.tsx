@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, ChevronDown, Zap, Award, Clock } from 'lucide-react';
+import { Menu, X, ChevronDown, Zap, Award } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -12,7 +12,6 @@ function cn(...inputs: ClassValue[]) {
 const dropdownItems = [
   { name: 'View Services', path: '/services', icon: <Zap className="w-4 h-4" /> },
   { name: 'View Completed Works', path: '/completed-works', icon: <Award className="w-4 h-4" /> },
-  { name: 'View Ongoing Works', path: '/ongoing-works', icon: <Clock className="w-4 h-4" /> },
 ];
 const ThunderHover = ({ children, active }: { children: React.ReactNode, active?: boolean }) => (
   <motion.div
@@ -121,8 +120,8 @@ function Navbar() {
               onMouseEnter={() => setIsServicesOpen(true)}
               onMouseLeave={() => setIsServicesOpen(false)}
             >
-              <ThunderHover active={['/services', '/completed-works', '/ongoing-works'].includes(location.pathname)}>
-                <button className={cn("flex items-center gap-1 text-sm font-medium transition-colors", ['/services', '/completed-works', '/ongoing-works'].includes(location.pathname) ? "text-ultramarine" : "text-slate-600")}>
+              <ThunderHover active={['/services', '/completed-works'].includes(location.pathname)}>
+                <button className={cn("flex items-center gap-1 text-sm font-medium transition-colors", ['/services', '/completed-works'].includes(location.pathname) ? "text-ultramarine" : "text-slate-600")}>
                   Services <ChevronDown className="w-4 h-4" />
                 </button>
               </ThunderHover>

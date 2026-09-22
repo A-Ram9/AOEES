@@ -12,7 +12,6 @@ The site is a single-page application with the following sections/routes:
 | `/why-choose-us` | Why Choose Us | Company stats, differentiators (safety, timeliness, certified quality), and a 5-step project execution lifecycle (Consultation → Design → Installation → Testing → Handover) |
 | `/services` | Services | Six core service lines: substation & switchgear installation, solar PV projects, switchgear installations, testing & commissioning, underground cable works, and overhead line network works |
 | `/completed-works` | Completed Works | Portfolio of finished projects across commercial, residential, industrial, healthcare, and solar sectors |
-| `/ongoing-works` | Ongoing Works | Active projects with live progress bars and estimated completion |
 | `/clients` | Clients | Logos of partner organizations (NAMA, Majan, Ministry of Education, Royal Oman Police, Galfar, etc.) and a client testimonial |
 | `/about` | About | Company history, mission, vision, and core values |
 | `/contact` | Contact | Contact details (phone, email, address, working hours) and an inquiry form |
@@ -45,7 +44,6 @@ src/
     ├── WhyChooseUs.tsx
     ├── Services.tsx
     ├── CompletedWorks.tsx
-    ├── OngoingWorks.tsx
     ├── Clients.tsx
     ├── About.tsx
     └── Contact.tsx

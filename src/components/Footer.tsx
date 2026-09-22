@@ -51,8 +51,7 @@ function Footer() {
             <ul className="space-y-5">
               {[
                 { name: 'View Services', path: '/services' },
-                { name: 'View Completed Works', path: '/completed-works' },
-                { name: 'View Ongoing Works', path: '/ongoing-works' }
+                { name: 'View Completed Works', path: '/completed-works' }
               ].map((link) => (
                 <li key={link.name}>
                   <Link to={link.path} className="text-slate-500 hover:text-ultramarine transition-colors text-sm font-medium flex items-center group">

@@ -6,7 +6,6 @@ import Home from './pages/Home';
 import WhyChooseUs from './pages/WhyChooseUs';
 import Services from './pages/Services';
 import CompletedWorks from './pages/CompletedWorks';
-import OngoingWorks from './pages/OngoingWorks';
 import Clients from './pages/Clients';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -23,7 +22,6 @@ export default function App() {
             <Route path="/why-choose-us" element={<WhyChooseUs />} />            
             <Route path="/services" element={<Services />} />
             <Route path="/completed-works" element={<CompletedWorks />} />
-            <Route path="/ongoing-works" element={<OngoingWorks />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
