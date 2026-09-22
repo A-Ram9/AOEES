@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { Calendar, MapPin } from 'lucide-react';
+import InteractiveBackground from '../components/InteractiveBackground';
 
 const projects = [
   {
@@ -54,8 +55,9 @@ const projects = [
 
 function CompletedWorks() {
   return (
-    <div className="py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative overflow-hidden py-20">
+      <InteractiveBackground />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}

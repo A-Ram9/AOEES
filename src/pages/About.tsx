@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { Award, Users, Target, History, Zap } from 'lucide-react';
+import InteractiveBackground from '../components/InteractiveBackground';
 
 
 function About() {
@@ -38,8 +39,9 @@ function About() {
   };
 
   return (
-    <div className="py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative overflow-hidden py-20">
+      <InteractiveBackground />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Story Section */}
         <div className="grid lg:grid-cols-2 gap-16 items-center mb-24">
           <motion.div

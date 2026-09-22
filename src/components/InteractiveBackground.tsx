@@ -1,7 +1,12 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Subtle, cursor-anchored background for the Clients page.
+ * Subtle, cursor-anchored background used across the site's light-toned
+ * page sections (Clients, Services, Completed Works, About, Contact, and
+ * the light sections of Why Choose Us). Each page mounts its own instance
+ * behind its white/light-background content; dark sections (hero videos,
+ * the ultramarine CTA, etc.) keep their own solid background and simply
+ * sit above it undisturbed.
  *
  * Rather than firing independent random sparks, the "lightning" here is
  * a short trail sampled directly from the cursor's own recent path, so
@@ -35,7 +40,7 @@ function smoothstep(t: number): number {
   return clamped * clamped * (3 - 2 * clamped);
 }
 
-function ClientsBackground() {
+function InteractiveBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -211,4 +216,4 @@ function ClientsBackground() {
   );
 }
 
-export default ClientsBackground;
+export default InteractiveBackground;

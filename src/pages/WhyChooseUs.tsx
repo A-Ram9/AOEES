@@ -1,12 +1,14 @@
 import { motion } from 'motion/react';
 import { Shield, Clock, Award, ArrowRight, CheckCircle2, Pencil, FileCheck, Zap, UserCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import InteractiveBackground from '../components/InteractiveBackground';
 
 function WhyChooseUs() {
   return (
-    <div className="flex flex-col">
+    <div className="relative flex flex-col overflow-hidden">
+      <InteractiveBackground />
       {/* Stats Section */}
-      <section className="py-20 bg-white">
+      <section className="relative z-10 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
@@ -32,7 +34,7 @@ function WhyChooseUs() {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-24 bg-slate-50">
+      <section className="relative z-10 py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="section-title">Why Oman Spark?</h2>
@@ -76,7 +78,7 @@ function WhyChooseUs() {
       </section>
 
       {/* Workflow Lifecycle Section */}
-      <section className="py-24 bg-slate-900 relative overflow-hidden">
+      <section className="relative z-10 py-24 bg-slate-900 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -218,7 +220,7 @@ function WhyChooseUs() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-ultramarine text-white">
+      <section className="relative z-10 py-20 bg-ultramarine text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold mb-8">Ready to start your project?</h2>
           <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">

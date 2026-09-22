@@ -18,6 +18,16 @@ The site is a single-page application with the following sections/routes:
 
 The UI is built around a shared `Navbar` (with a "Services" dropdown), `Footer`, and a `ScrollToTop` helper that resets scroll position on navigation. Pages use scroll-triggered and hover animations (fade/slide-ins, animated progress bars, a lightning-bolt motif on interactive elements) to reinforce the electrical-engineering theme.
 
+### Interactive background
+
+The light-toned sections of every page (Clients, Services, Completed Works, About, Contact, and the light sections of Why Choose Us) share an `InteractiveBackground` canvas component ([`src/components/InteractiveBackground.tsx`](src/components/InteractiveBackground.tsx)) rendered behind their content. It draws:
+
+- A static, dark-ultramarine ambient wash across the section.
+- A soft glow that eases toward the cursor.
+- A short "lightning" trail sampled directly from the cursor's own recent movement (smoothed with quadratic curves, faded with a smoothstep easing, jitter scaling with pointer speed) — an understated nod to the company's electrical trade.
+
+It's implemented with plain Canvas 2D + `requestAnimationFrame` (no extra dependency), respects `prefers-reduced-motion`, and is skipped on sections with their own solid dark background (the Home hero, the Why Choose Us workflow/CTA sections) where it wouldn't be visible anyway.
+
 ## Tech stack
 
 - **[React 19](https://react.dev/)** + **[TypeScript](https://www.typescriptlang.org/)** — component-based UI
@@ -36,9 +46,10 @@ src/
 ├── App.tsx              # Route definitions
 ├── main.tsx              # App entry point
 ├── components/
-│   ├── Navbar.tsx         # Top navigation with dropdown + mobile menu
-│   ├── Footer.tsx         # Site footer with quick links & contact info
-│   └── ScrollToTop.tsx    # Scrolls to top on route change
+│   ├── Navbar.tsx                 # Top navigation with dropdown + mobile menu
+│   ├── Footer.tsx                 # Site footer with quick links & contact info
+│   ├── ScrollToTop.tsx            # Scrolls to top on route change
+│   └── InteractiveBackground.tsx  # Cursor-reactive canvas background for light sections
 └── pages/
     ├── Home.tsx
     ├── WhyChooseUs.tsx
