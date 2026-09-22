@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import ClientsBackground from '../components/ClientsBackground';
 
 const clients = [
   { name: 'NAMA', logo: '/reqimages/nama1.jpg' },
@@ -17,8 +18,9 @@ const clients = [
 
 function Clients() {
   return (
-    <div className="py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative overflow-hidden py-20">
+      <ClientsBackground />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
