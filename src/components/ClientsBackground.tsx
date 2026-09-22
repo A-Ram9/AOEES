@@ -3,22 +3,22 @@ import { useEffect, useRef } from 'react';
 /**
  * Electric, cursor-reactive background for the Clients page.
  *
- * - A static soft light-blue glow washes the whole section (fixed, does
+ * - A static, dark-ultramarine glow washes the whole section (fixed, does
  *   not move) so the page always reads as gently "powered on".
- * - A brighter glow follows the cursor with minimal lag, and crackling
- *   lightning bolts spark outward from the pointer in real time -
- *   fitting the electrical-contracting theme much more directly than a
- *   generic particle field.
+ * - A slightly brighter glow follows the cursor with minimal lag, and
+ *   occasional, understated lightning sparks flick outward from the
+ *   pointer - fitting the electrical-contracting theme without
+ *   overwhelming the page.
  *
- * Colors stay within the site's blue family (see src/index.css and the
- * blue-400/500 accents used elsewhere), just pushed brighter/lighter so
- * the reaction to the cursor reads clearly instead of blending in.
+ * Colors match the page's own ultramarine text/brand color (see the
+ * --color-ultramarine tokens in src/index.css) rather than a generic
+ * light blue, so the effect reads as part of the same design language.
  */
 
-const AMBIENT_RGB = '96, 165, 250'; // blue-400 - static background wash
-const CURSOR_GLOW_RGB = '56, 189, 248'; // sky-400 - bright glow under the cursor
-const BOLT_GLOW_RGB = '56, 189, 248'; // sky-400 - outer glow of each bolt
-const BOLT_CORE_RGB = '224, 242, 254'; // near-white light blue - hot bolt core
+const AMBIENT_RGB = '18, 10, 143'; // --color-ultramarine - static background wash
+const CURSOR_GLOW_RGB = '30, 20, 179'; // --color-ultramarine-light - glow under the cursor
+const BOLT_GLOW_RGB = '30, 20, 179'; // --color-ultramarine-light - outer glow of each bolt
+const BOLT_CORE_RGB = '143, 138, 217'; // ultramarine tinted toward white - hot bolt core
 
 interface Point {
   x: number;
@@ -92,33 +92,33 @@ function ClientsBackground() {
       mouse.active = false;
     }
 
-    /** Spawns short, bright sparks radiating out from the live cursor position. */
+    /** Spawns a short, faint spark radiating out from the live cursor position. */
     function spawnSparks(count: number) {
       for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 50 + Math.random() * 110;
+        const distance = 40 + Math.random() * 80;
         const endX = mouse.targetX + Math.cos(angle) * distance;
         const endY = mouse.targetY + Math.sin(angle) * distance;
         bolts.push({
           points: buildBoltPath(mouse.targetX, mouse.targetY, endX, endY, distance * 0.6),
-          life: 160,
-          maxLife: 160,
-          width: 1.4 + Math.random() * 1.2,
+          life: 140,
+          maxLife: 140,
+          width: 1 + Math.random() * 0.8,
         });
       }
     }
 
-    /** Occasionally fires one longer, more dramatic strike from the cursor. */
+    /** Rarely fires one longer, slightly more dramatic strike from the cursor. */
     function spawnStrike() {
       const angle = Math.random() * Math.PI * 2;
-      const distance = 160 + Math.random() * 140;
+      const distance = 130 + Math.random() * 110;
       const endX = mouse.targetX + Math.cos(angle) * distance;
       const endY = mouse.targetY + Math.sin(angle) * distance;
       bolts.push({
         points: buildBoltPath(mouse.targetX, mouse.targetY, endX, endY, distance * 0.7),
-        life: 220,
-        maxLife: 220,
-        width: 2.4,
+        life: 200,
+        maxLife: 200,
+        width: 1.8,
       });
     }
 
@@ -129,7 +129,7 @@ function ClientsBackground() {
       ];
       for (const spot of spots) {
         const glow = ctx!.createRadialGradient(spot.x, spot.y, 0, spot.x, spot.y, spot.r);
-        glow.addColorStop(0, `rgba(${AMBIENT_RGB}, 0.10)`);
+        glow.addColorStop(0, `rgba(${AMBIENT_RGB}, 0.07)`);
         glow.addColorStop(1, `rgba(${AMBIENT_RGB}, 0)`);
         ctx!.fillStyle = glow;
         ctx!.fillRect(0, 0, width, height);
@@ -138,9 +138,9 @@ function ClientsBackground() {
 
     function drawCursorGlow() {
       if (!mouse.active) return;
-      const glow = ctx!.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 240);
-      glow.addColorStop(0, `rgba(${CURSOR_GLOW_RGB}, 0.24)`);
-      glow.addColorStop(0.5, `rgba(${CURSOR_GLOW_RGB}, 0.08)`);
+      const glow = ctx!.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 220);
+      glow.addColorStop(0, `rgba(${CURSOR_GLOW_RGB}, 0.16)`);
+      glow.addColorStop(0.5, `rgba(${CURSOR_GLOW_RGB}, 0.05)`);
       glow.addColorStop(1, `rgba(${CURSOR_GLOW_RGB}, 0)`);
       ctx!.fillStyle = glow;
       ctx!.fillRect(0, 0, width, height);
@@ -156,15 +156,15 @@ function ClientsBackground() {
         bolt.points.forEach((p, i) => (i === 0 ? ctx!.moveTo(p.x, p.y) : ctx!.lineTo(p.x, p.y)));
 
         // Outer glow pass.
-        ctx!.strokeStyle = `rgba(${BOLT_GLOW_RGB}, ${0.55 * alpha})`;
-        ctx!.lineWidth = bolt.width * 3.2;
-        ctx!.shadowColor = `rgba(${BOLT_GLOW_RGB}, ${0.85 * alpha})`;
-        ctx!.shadowBlur = 16;
+        ctx!.strokeStyle = `rgba(${BOLT_GLOW_RGB}, ${0.4 * alpha})`;
+        ctx!.lineWidth = bolt.width * 3;
+        ctx!.shadowColor = `rgba(${BOLT_GLOW_RGB}, ${0.6 * alpha})`;
+        ctx!.shadowBlur = 12;
         ctx!.stroke();
 
         // Hot core pass.
         ctx!.shadowBlur = 0;
-        ctx!.strokeStyle = `rgba(${BOLT_CORE_RGB}, ${0.95 * alpha})`;
+        ctx!.strokeStyle = `rgba(${BOLT_CORE_RGB}, ${0.75 * alpha})`;
         ctx!.lineWidth = bolt.width;
         ctx!.stroke();
       }
@@ -185,11 +185,11 @@ function ClientsBackground() {
       drawCursorGlow();
 
       if (!prefersReducedMotion && mouse.active) {
-        if (now - lastSparkAt > 55) {
-          spawnSparks(2);
+        if (now - lastSparkAt > 220) {
+          spawnSparks(1);
           lastSparkAt = now;
         }
-        if (now - lastStrikeAt > 420) {
+        if (now - lastStrikeAt > 1400) {
           spawnStrike();
           lastStrikeAt = now;
         }
@@ -197,7 +197,7 @@ function ClientsBackground() {
 
       if (!prefersReducedMotion) {
         bolts = bolts.filter((bolt) => (bolt.life -= 16) > 0);
-        if (bolts.length > 60) bolts = bolts.slice(bolts.length - 60);
+        if (bolts.length > 24) bolts = bolts.slice(bolts.length - 24);
       }
 
       drawBolts();
